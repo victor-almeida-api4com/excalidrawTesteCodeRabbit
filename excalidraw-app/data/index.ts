@@ -153,8 +153,6 @@ export const generateCollaborationLinkData = async () => {
     throw new Error("Couldn't generate room key");
   }
 
-  console.log("Generated collaboration room:", roomId);
-
   return { roomId, roomKey };
 };
 

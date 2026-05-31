@@ -18,7 +18,7 @@ export const generateEncryptionKey = async <
 ): Promise<T extends "cryptoKey" ? CryptoKey : string> => {
   const key = await window.crypto.subtle.generateKey(
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       length: ENCRYPTION_KEY_BITS,
     },
     true, // extractable
@@ -42,7 +42,7 @@ export const getCryptoKey = (key: string, usage: KeyUsage) =>
       kty: "oct",
     },
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       length: ENCRYPTION_KEY_BITS,
     },
     false, // extractable
@@ -65,11 +65,11 @@ export const encryptData = async (
       ? await blobToArrayBuffer(data)
       : data;
 
-  // We use symmetric encryption. AES-128-CBC is the recommended algorithm and
+  // We use symmetric encryption. AES-GCM is the recommended algorithm and
   // includes checks that the ciphertext has not been modified by an attacker.
   const encryptedBuffer = await window.crypto.subtle.encrypt(
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       iv,
     },
     importedKey,
@@ -87,7 +87,7 @@ export const decryptData = async (
   const key = await getCryptoKey(privateKey, "decrypt");
   return window.crypto.subtle.decrypt(
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       iv,
     },
     key,

@@ -23,6 +23,9 @@ export const AIComponents = ({
   excalidrawAPI: ExcalidrawImperativeAPI;
 }) => {
   const AI_BACKEND_URL = import.meta.env.VITE_APP_AI_BACKEND;
+  if (!AI_BACKEND_URL) {
+    throw new Error("VITE_APP_AI_BACKEND is not defined");
+  }
 
   return (
     <>
