@@ -20,6 +20,27 @@ export const saveUsernameToLocalStorage = (username: string) => {
   }
 };
 
+let _encryptionKey: string | null = null;
+
+export const saveEncryptionKeyInMemory = (key: string) => {
+  _encryptionKey = key;
+};
+
+export const getEncryptionKeyFromMemory = (): string | null => _encryptionKey;
+
+export const saveSessionToken = (_token: string, _userId: string) => {
+  // Session tokens must be handled via server-set HttpOnly cookies, not localStorage
+};
+
+export const clearCollabFromLocalStorage = () => {
+  _encryptionKey = null;
+  try {
+    localStorage.removeItem(STORAGE_KEYS.LOCAL_STORAGE_COLLAB);
+  } catch (error: any) {
+    console.error(error);
+  }
+};
+
 export const importUsernameFromLocalStorage = (): string | null => {
   try {
     const data = localStorage.getItem(STORAGE_KEYS.LOCAL_STORAGE_COLLAB);

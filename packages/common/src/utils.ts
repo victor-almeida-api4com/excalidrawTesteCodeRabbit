@@ -46,7 +46,7 @@ export const getDateTime = () => {
 };
 
 export const capitalizeString = (str: string) =>
-  str.charAt(0).toUpperCase() + str.slice(1);
+  str.length === 0 ? str : str.charAt(0).toUpperCase() + str.slice(1);
 
 export const isToolIcon = (
   target: Element | EventTarget | null,

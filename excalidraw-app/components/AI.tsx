@@ -18,6 +18,11 @@ export const AIComponents = ({
 }: {
   excalidrawAPI: ExcalidrawImperativeAPI;
 }) => {
+  const AI_BACKEND_URL = import.meta.env.VITE_APP_AI_BACKEND?.trim();
+  if (!AI_BACKEND_URL) {
+    throw new Error("VITE_APP_AI_BACKEND is not configured");
+  }
+
   return (
     <>
       <DiagramToCodePlugin
@@ -41,9 +46,7 @@ export const AIComponents = ({
           const textFromFrameChildren = getTextFromElements(children);
 
           const response = await fetch(
-            `${
-              import.meta.env.VITE_APP_AI_BACKEND
-            }/v1/ai/diagram-to-code/generate`,
+            new URL("/v1/ai/diagram-to-code/generate", AI_BACKEND_URL).toString(),
             {
               method: "POST",
               headers: {
@@ -87,16 +90,16 @@ export const AIComponents = ({
           }
 
           try {
-            const { html } = await response.json();
+            const responseData = await response.json();
+            const { html } = responseData;
 
-            if (!html) {
-              throw new Error("Generation failed (invalid response)");
+            if (!html || typeof html !== "string" || html.trim() === "") {
+              throw new Error("Generation failed (invalid or missing html)");
             }
-            return {
-              html,
-            };
+
+            return { html };
           } catch (error: any) {
-            throw new Error("Generation failed (invalid response)");
+            throw new Error(`Generation failed (invalid response): ${error.message || error}`);
           }
         }}
       />
@@ -106,9 +109,7 @@ export const AIComponents = ({
           const { onChunk, onStreamCreated, signal, messages } = props;
 
           const result = await TTDStreamFetch({
-            url: `${
-              import.meta.env.VITE_APP_AI_BACKEND
-            }/v1/ai/text-to-diagram/chat-streaming`,
+            url: new URL("/v1/ai/text-to-diagram/chat-streaming", AI_BACKEND_URL).toString(),
             messages,
             onChunk,
             onStreamCreated,

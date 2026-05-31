@@ -2,6 +2,8 @@ import { ENCRYPTION_KEY_BITS } from "@excalidraw/common";
 
 import { blobToArrayBuffer } from "./blob";
 
+export const ENCRYPTION_ALGORITHM = "AES-GCM";
+
 export const IV_LENGTH_BYTES = 12;
 
 export const createIV = (): Uint8Array<ArrayBuffer> => {
@@ -16,7 +18,7 @@ export const generateEncryptionKey = async <
 ): Promise<T extends "cryptoKey" ? CryptoKey : string> => {
   const key = await window.crypto.subtle.generateKey(
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       length: ENCRYPTION_KEY_BITS,
     },
     true, // extractable
@@ -34,13 +36,13 @@ export const getCryptoKey = (key: string, usage: KeyUsage) =>
     "jwk",
     {
       alg: "A128GCM",
-      ext: true,
+      ext: false,
       k: key,
-      key_ops: ["encrypt", "decrypt"],
+      key_ops: [usage],
       kty: "oct",
     },
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       length: ENCRYPTION_KEY_BITS,
     },
     false, // extractable
@@ -67,7 +69,7 @@ export const encryptData = async (
   // includes checks that the ciphertext has not been modified by an attacker.
   const encryptedBuffer = await window.crypto.subtle.encrypt(
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       iv,
     },
     importedKey,
@@ -85,7 +87,7 @@ export const decryptData = async (
   const key = await getCryptoKey(privateKey, "decrypt");
   return window.crypto.subtle.decrypt(
     {
-      name: "AES-GCM",
+      name: ENCRYPTION_ALGORITHM,
       iv,
     },
     key,

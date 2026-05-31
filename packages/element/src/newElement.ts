@@ -100,8 +100,8 @@ const _newElementBase = <T extends ExcalidrawElement>(
     ...rest
   }: ElementConstructorOpts & Omit<Partial<ExcalidrawGenericElement>, "type">,
 ) => {
-  // NOTE (mtolmacs): This is a temporary check to detect extremely large
-  // element position or sizing
+  // NOTE (mtolmacs): Temporary guard for extremely large coordinates —
+  // values beyond ±1e6 cause canvas rendering artifacts and precision loss.
   if (
     x < -1e6 ||
     x > 1e6 ||

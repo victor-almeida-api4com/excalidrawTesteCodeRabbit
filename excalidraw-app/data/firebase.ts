@@ -43,17 +43,19 @@ import type { Socket } from "socket.io-client";
 
 let FIREBASE_CONFIG: Record<string, any>;
 try {
-  FIREBASE_CONFIG = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
+  const parsed = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new TypeError("parsed value is not a plain object");
+  }
+  FIREBASE_CONFIG = parsed;
 } catch (error: any) {
-  console.warn(
-    `Error JSON parsing firebase config. Supplied value: ${
-      import.meta.env.VITE_APP_FIREBASE_CONFIG
-    }`,
+  throw new Error(
+    "Invalid VITE_APP_FIREBASE_CONFIG: Firebase configuration must be a valid JSON object. " +
+    "Check your environment variables."
   );
-  FIREBASE_CONFIG = {};
 }
 
-let firebaseApp: ReturnType<typeof initializeApp> | null = null;
+var firebaseApp: ReturnType<typeof initializeApp> | null = null;
 let firestore: ReturnType<typeof getFirestore> | null = null;
 let firebaseStorage: ReturnType<typeof getStorage> | null = null;
 
@@ -84,9 +86,13 @@ export const loadFirebaseStorage = async () => {
   return _getStorage();
 };
 
+/** Represents an encrypted Excalidraw scene stored in Firestore. */
 type FirebaseStoredScene = {
+  /** Monotonically increasing version used for conflict resolution. */
   sceneVersion: number;
+  /** AES-GCM initialisation vector (12 bytes). */
   iv: Bytes;
+  /** AES-GCM encrypted scene data. */
   ciphertext: Bytes;
 };
 
@@ -194,11 +200,11 @@ export const saveToFirebase = async (
     // bail if no room exists as there's nothing we can do at this point
     !roomId ||
     !roomKey ||
-    !socket ||
     isSavedToFirebase(portal, elements)
   ) {
     return null;
   }
+
 
   const firestore = _getFirestore();
   const docRef = doc(firestore, "scenes", roomId);

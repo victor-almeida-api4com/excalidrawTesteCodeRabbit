@@ -496,6 +496,10 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       );
     }
 
+    if (isDevEnv()) {
+      (window as any).__COLLAB_DEBUG__ = { roomId, username: this.state.username };
+    }
+
     // TODO: `ImportedDataState` type here seems abused
     const scenePromise = resolvablePromise<
       | (ImportedDataState & { elements: readonly OrderedExcalidrawElement[] })

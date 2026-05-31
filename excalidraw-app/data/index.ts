@@ -128,6 +128,7 @@ export type SocketUpdateData =
     _brand: "socketUpdateData";
   };
 
+const COLLAB_KEY_LENGTH = 22;
 const RE_COLLAB_LINK = /^#room=([a-zA-Z0-9_-]+),([a-zA-Z0-9_-]+)$/;
 
 export const isCollaborationLink = (link: string) => {
@@ -135,10 +136,10 @@ export const isCollaborationLink = (link: string) => {
   return RE_COLLAB_LINK.test(hash);
 };
 
-export const getCollaborationLinkData = (link: string) => {
+export const getCollaborationLinkData = (link: string): { roomId: string; roomKey: string } | null => {
   const hash = new URL(link).hash;
   const match = hash.match(RE_COLLAB_LINK);
-  if (match && match[2].length !== 22) {
+  if (match && match[2].length !== COLLAB_KEY_LENGTH) {
     window.alert(t("alerts.invalidEncryptionKey"));
     return null;
   }

@@ -59,3 +59,6 @@ export const COOKIES = {
 export const isExcalidrawPlusSignedUser = document.cookie.includes(
   COOKIES.AUTH_STATE_COOKIE,
 );
+
+export const MAX_COLLABORATORS = 50;
+
