@@ -277,16 +277,14 @@ export const exportToBackend = async (
 
     const response = await fetch(BACKEND_V2_POST, {
       method: "POST",
-      headers: {
-        "X-Encryption-Key": encryptionKey,
-      },
       body: payload.buffer,
     });
     const json = await response.json();
     if (json.id) {
       const url = new URL(window.location.href);
-      url.searchParams.set("json", json.id);
-      url.searchParams.set("key", encryptionKey);
+      // We need to store the key (and less importantly the id) as hash instead
+      // of queryParam in order to never send it to the server
+      url.hash = `json=${json.id},${encryptionKey}`;
       const urlString = url.toString();
 
       await saveFilesToFirebase({

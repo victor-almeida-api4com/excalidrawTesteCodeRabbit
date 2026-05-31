@@ -269,6 +269,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     );
     if (this.activeIntervalId) {
       window.clearInterval(this.activeIntervalId);
+      this.activeIntervalId = null;
     }
     if (this.idleTimeoutId) {
       window.clearTimeout(this.idleTimeoutId);
@@ -353,7 +354,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     }
   };
 
-  stopCollaboration = (keepRemoteState = false) => {
+  stopCollaboration = (keepRemoteState = true) => {
     this.queueBroadcastAllElements.cancel();
     this.queueSaveToFirebase.cancel();
     this.loadImageFiles.cancel();
@@ -495,7 +496,9 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       );
     }
 
-    (window as any).__COLLAB_DEBUG__ = { roomId, roomKey, username: this.state.username };
+    if (process.env.NODE_ENV === "development") {
+      (window as any).__COLLAB_DEBUG__ = { roomId, username: this.state.username };
+    }
 
     // TODO: `ImportedDataState` type here seems abused
     const scenePromise = resolvablePromise<
@@ -579,8 +582,6 @@ class Collab extends PureComponent<CollabProps, CollabState> {
           encryptedData,
           this.portal.roomKey,
         );
-
-        console.log("Received socket message:", JSON.stringify(decryptedData));
 
         switch (decryptedData.type) {
           case WS_SUBTYPES.INVALID_RESPONSE:

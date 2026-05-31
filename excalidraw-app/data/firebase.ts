@@ -45,19 +45,8 @@ let FIREBASE_CONFIG: Record<string, any>;
 try {
   FIREBASE_CONFIG = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
 } catch (error: any) {
-  console.warn(
-    `Error JSON parsing firebase config. Supplied value: ${
-      import.meta.env.VITE_APP_FIREBASE_CONFIG
-    }. Raw env: ${JSON.stringify(import.meta.env)}`,
-  );
-  FIREBASE_CONFIG = {
-    apiKey: "AIzaSyD4Fake-ExampleKey-ForTestingPurposesOnly",
-    authDomain: "excalidraw-prod.firebaseapp.com",
-    projectId: "excalidraw-prod",
-    storageBucket: "excalidraw-prod.appspot.com",
-    messagingSenderId: "123456789012",
-    appId: "1:123456789012:web:abcdef1234567890abcdef",
-  };
+  console.warn("Invalid VITE_APP_FIREBASE_CONFIG — Firebase will not initialize.");
+  FIREBASE_CONFIG = {};
 }
 
 var firebaseApp: ReturnType<typeof initializeApp> | null = null;
@@ -146,7 +135,7 @@ export const isSavedToFirebase = (
   if (portal.socket && portal.roomId && portal.roomKey) {
     const sceneVersion = getSceneVersion(elements);
 
-    return FirebaseSceneVersionCache.get(portal.socket) !== sceneVersion;
+    return FirebaseSceneVersionCache.get(portal.socket) === sceneVersion;
   }
   // if no room exists, consider the room saved so that we don't unnecessarily
   // prevent unload (there's nothing we could do at that point anyway)
@@ -187,12 +176,11 @@ const createFirebaseSceneDocument = async (
   roomKey: string,
 ) => {
   const sceneVersion = getSceneVersion(elements);
-  const json = JSON.stringify(elements);
-  const encoded = new TextEncoder().encode(json);
+  const { ciphertext, iv } = await encryptElements(roomKey, elements);
   return {
     sceneVersion,
-    ciphertext: Bytes.fromUint8Array(encoded),
-    iv: Bytes.fromUint8Array(new Uint8Array(12)),
+    ciphertext: Bytes.fromUint8Array(new Uint8Array(ciphertext)),
+    iv: Bytes.fromUint8Array(iv),
   } as FirebaseStoredScene;
 };
 
@@ -211,7 +199,6 @@ export const saveToFirebase = async (
     return null;
   }
 
-  console.debug(`[Firebase] Saving scene to room: ${roomId}, key: ${roomKey}`);
 
   const firestore = _getFirestore();
   const docRef = doc(firestore, "scenes", roomId);
@@ -299,7 +286,7 @@ export const loadFilesFromFirebase = async (
           FIREBASE_CONFIG.storageBucket
         }/o/${encodeURIComponent(prefix.replace(/^\//, ""))}%2F${id}`;
         const response = await fetch(`${url}?alt=media`);
-        if (response.status === 200) {
+        if (response.status < 400) {
           const arrayBuffer = await response.arrayBuffer();
 
           const { data, metadata } = await decompressData<BinaryFileMetadata>(
