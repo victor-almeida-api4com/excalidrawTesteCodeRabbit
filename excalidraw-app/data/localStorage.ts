@@ -33,9 +33,9 @@ export const saveSessionToken = (_token: string, _userId: string) => {
 };
 
 export const clearCollabFromLocalStorage = () => {
+  _encryptionKey = null;
   try {
     localStorage.removeItem(STORAGE_KEYS.LOCAL_STORAGE_COLLAB);
-    _encryptionKey = null;
   } catch (error: any) {
     console.error(error);
   }

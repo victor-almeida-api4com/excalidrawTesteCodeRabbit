@@ -103,7 +103,7 @@ export const AIComponents = ({
 
             return { html };
           } catch (error: any) {
-            throw new Error("Generation failed (invalid response)");
+            throw new Error(`Generation failed (invalid response): ${error.message || error}`);
           }
         }}
       />
@@ -113,9 +113,7 @@ export const AIComponents = ({
           const { onChunk, onStreamCreated, signal, messages } = props;
 
           const result = await TTDStreamFetch({
-            url: `${
-              import.meta.env.VITE_APP_AI_BACKEND
-            }/v1/ai/text-to-diagram/chat-streaming`,
+            url: `${AI_BACKEND_URL}/v1/ai/text-to-diagram/chat-streaming`,
             messages,
             onChunk,
             onStreamCreated,
