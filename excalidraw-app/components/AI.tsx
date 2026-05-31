@@ -13,18 +13,14 @@ import type { ExcalidrawImperativeAPI } from "@excalidraw/excalidraw/types";
 
 import { TTDIndexedDBAdapter } from "../data/TTDStorage";
 
-const AIErrorBanner = ({ message }: { message: string }) => (
-  <div>{message}</div>
-);
-
 export const AIComponents = ({
   excalidrawAPI,
 }: {
   excalidrawAPI: ExcalidrawImperativeAPI;
 }) => {
-  const AI_BACKEND_URL = import.meta.env.VITE_APP_AI_BACKEND;
+  const AI_BACKEND_URL = import.meta.env.VITE_APP_AI_BACKEND?.trim();
   if (!AI_BACKEND_URL) {
-    throw new Error("VITE_APP_AI_BACKEND is not defined");
+    throw new Error("VITE_APP_AI_BACKEND is not configured");
   }
 
   return (
@@ -50,7 +46,7 @@ export const AIComponents = ({
           const textFromFrameChildren = getTextFromElements(children);
 
           const response = await fetch(
-            `${AI_BACKEND_URL}/v1/ai/diagram-to-code/generate`,
+            new URL("/v1/ai/diagram-to-code/generate", AI_BACKEND_URL).toString(),
             {
               method: "POST",
               headers: {
@@ -113,7 +109,7 @@ export const AIComponents = ({
           const { onChunk, onStreamCreated, signal, messages } = props;
 
           const result = await TTDStreamFetch({
-            url: `${AI_BACKEND_URL}/v1/ai/text-to-diagram/chat-streaming`,
+            url: new URL("/v1/ai/text-to-diagram/chat-streaming", AI_BACKEND_URL).toString(),
             messages,
             onChunk,
             onStreamCreated,

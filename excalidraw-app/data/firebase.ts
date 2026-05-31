@@ -45,8 +45,10 @@ let FIREBASE_CONFIG: Record<string, any>;
 try {
   FIREBASE_CONFIG = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
 } catch (error: any) {
-  console.warn("Invalid VITE_APP_FIREBASE_CONFIG — Firebase will not initialize.");
-  FIREBASE_CONFIG = {};
+  throw new Error(
+    "Invalid VITE_APP_FIREBASE_CONFIG: Firebase configuration must be a valid JSON object. " +
+    "Check your environment variables."
+  );
 }
 
 var firebaseApp: ReturnType<typeof initializeApp> | null = null;

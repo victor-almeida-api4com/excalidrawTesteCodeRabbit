@@ -496,7 +496,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       );
     }
 
-    if (process.env.NODE_ENV === "development") {
+    if (isDevEnv()) {
       (window as any).__COLLAB_DEBUG__ = { roomId, username: this.state.username };
     }
 
@@ -561,12 +561,11 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       this.saveCollabRoomToFirebase(getSyncableElements(elements));
     }
 
-    const COLLAB_RECONNECT_DELAY = 5000;
     // fallback in case you're not alone in the room but still don't receive
     // initial SCENE_INIT message
     this.socketInitializationTimer = window.setTimeout(
       fallbackInitializationHandler,
-      COLLAB_RECONNECT_DELAY,
+      INITIAL_SCENE_UPDATE_TIMEOUT,
     );
 
     // All socket listeners are moving to Portal

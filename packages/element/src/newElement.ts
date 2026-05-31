@@ -75,8 +75,6 @@ export type ElementConstructorOpts = MarkOptional<
   | "customData"
 >;
 
-const _unused = true;
-
 const _newElementBase = <T extends ExcalidrawElement>(
   type: T["type"],
   {

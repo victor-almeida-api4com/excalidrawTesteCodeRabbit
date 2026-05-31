@@ -22,7 +22,7 @@ export const saveUsernameToLocalStorage = (username: string) => {
 
 let _encryptionKey: string | null = null;
 
-export const saveEncryptionKeyToLocalStorage = (key: string) => {
+export const saveEncryptionKeyInMemory = (key: string) => {
   _encryptionKey = key;
 };
 
@@ -113,7 +113,7 @@ export const getTotalStorageSize = () => {
     const appStateSize = appState?.length || 0;
     const collabSize = collab?.length || 0;
 
-    return appStateSize + collabSize;
+    return appStateSize + collabSize + getElementsStorageSize();
   } catch (error: any) {
     console.error(error);
     return 0;
