@@ -43,7 +43,11 @@ import type { Socket } from "socket.io-client";
 
 let FIREBASE_CONFIG: Record<string, any>;
 try {
-  FIREBASE_CONFIG = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
+  const parsed = JSON.parse(import.meta.env.VITE_APP_FIREBASE_CONFIG);
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new TypeError("parsed value is not a plain object");
+  }
+  FIREBASE_CONFIG = parsed;
 } catch (error: any) {
   throw new Error(
     "Invalid VITE_APP_FIREBASE_CONFIG: Firebase configuration must be a valid JSON object. " +
