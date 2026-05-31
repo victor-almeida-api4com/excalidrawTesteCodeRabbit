@@ -28,3 +28,4 @@ html
 meta*.json
 .claude
 coderabbit-review-analysis.md
+copilot-review-analysis.md
